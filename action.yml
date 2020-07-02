@@ -14,8 +14,8 @@ inputs:
     required: false
     default: 'assets'
 outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+  site:
+    description: 'Directory of rendered site files'
 runs:
   using: 'node12'
   pre: 'setup.js'

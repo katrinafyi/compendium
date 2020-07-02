@@ -87,14 +87,19 @@ function assertZero(num) {
     core.info('Executing eleventy');
     assertZero(await exec.exec('../node_modules/.bin/eleventy')); // hack
 
+    const sitePath = ELEVENTY_DIR + '/_site';
+
     process.chdir(INPUT_DIR);
     const globber2 = await glob.create(core.getInput('copy-glob'));
     for await (let file of globber2.globGenerator()) {
       file = path.relative(file, INPUT_DIR);
 
-      core.info('Copying ' + file + ' to ' + ELEVENTY_DIR + file);
-      assertZero(await exec.exec('cp', ['-rv', file, ELEVENTY_DIR + file]));
+      core.info('Copying ' + file + ' to ' + sitePath + '/' + file);
+      assertZero(await exec.exec('cp', ['-rv', file, sitePath + '/' + file]));
     }
+
+    core.setOutput('site', path.resolve(sitePath));
+
   } catch (error) {
     core.setFailed(error.message);
   }
