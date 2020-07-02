@@ -1,4 +1,6 @@
 const process = require('process');
+const path = require('path');
+
 const core = require('@actions/core');
 const github = require('@actions/github');
 const exec = require('@actions/exec');
@@ -57,7 +59,8 @@ function assertZero(num) {
     process.chdir(INPUT_DIR);
 
     const globber = await glob.create(core.getInput('input-glob'));
-    for await (const file of globber.globGenerator()) {
+    for await (let file of globber.globGenerator()) {
+      file = path.relative(file, INPUT_DIR);
 
       const htmlName = file.substr(0, file.lastIndexOf(".")) + ".html";
       const newFile = ELEVENTY_DIR + '/' + htmlName;
@@ -77,7 +80,9 @@ function assertZero(num) {
 
     process.chdir(INPUT_DIR);
     const globber2 = await glob.create(core.getInput('copy-glob'));
-    for await (const file of globber2.globGenerator()) {
+    for await (let file of globber2.globGenerator()) {
+      file = path.relative(file, INPUT_DIR);
+
       core.info('Copying ' + file + ' to ' + ELEVENTY_DIR + file);
       assertZero(await exec.exec('cp', ['-rv', file, ELEVENTY_DIR + file]));
     }
