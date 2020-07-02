@@ -95,8 +95,13 @@ function assertZero(num) {
       if (!fs.lstatSync(file).isFile()) continue;
       file = path.relative(INPUT_DIR, file);
 
-      core.info('Copying ' + file + ' to ' + sitePath + '/' + file);
-      assertZero(await exec.exec('cp', ['-rv', file, sitePath + '/' + file]));
+      const newFile = sitePath + '/' + file;
+      const newDir = path.dirname(newFile);
+      if (!fs.existsSync(newDir))
+        assertZero(await exec.exec('mkdir', ['-p', newDir]));
+
+      core.info('Copying ' + file + ' to ' + newFile);
+      assertZero(await exec.exec('cp', ['-rv', file, newFile]));
     }
 
     core.setOutput('site', path.resolve(sitePath));
