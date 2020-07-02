@@ -28,15 +28,20 @@ function assertZero(num) {
   try {
     core.info('Action directory is ' + ACTION_DIR);
     
-    const pandocPath = await tc.downloadTool(PANDOC);
-    const pandocExtracted = await tc.extractTar(pandocPath);
+    const pandocArchive = await tc.downloadTool(PANDOC);
+    const pandocExtracted = await tc.extractTar(pandocArchive);
     core.info('Pandoc downloaded and extracted to ' + pandocExtracted);
 
     const pandocCache = await tc.cacheDir(pandocExtracted, 'pandoc', '2.10');
     core.addPath(pandocCache);
     core.info('Pandoc cached at ' + pandocCache);
 
-    assertZero(await exec.exec('pandoc --version'));
+    
+    const pandocPaths = await (await glob.create(pandocCache + '/**/pandoc')).glob();
+    if (pandocPaths.length == 0)
+      throw new Error('Could not find location of pandoc binary');
+    const pandoc = pandocPaths[0];
+    assertZero(await exec.exec(pandoc + ' --version'));
     
     // if ((await cache.restoreCache(CACHE_PATHS, CACHE_KEY)) === undefined) {
     //   core.info('Creating node_modules cache');
@@ -58,8 +63,8 @@ function assertZero(num) {
       const newFile = ELEVENTY_DIR + '/' + htmlName;
       core.info('Converting input file ' + file + ' to ' + newFile);
 
-      const ret = await exec.exec('pandoc', [
-        'pandoc', '-s', '-f', 'markdown', '-t', 'html5', 
+      const ret = await exec.exec(pandoc, [
+        '-s', '-f', 'markdown', '-t', 'html5', 
         '--katex', '--toc', '--template=' + TOC_HTML,
         file, '-o', newFile,
       ]);
