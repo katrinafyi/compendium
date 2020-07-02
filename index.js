@@ -6,7 +6,7 @@ const glob = require('@actions/glob');
 const tc = require('@actions/tool-cache');
 const cache = require('@actions/cache');
 
-const ACTION_DIR = process.cwd();
+const ACTION_DIR = __dirname;
 const ELEVENTY_DIR = ACTION_DIR + '/_eleventy';
 const TOC_HTML = ACTION_DIR + '/_toc.html';
 
@@ -26,6 +26,7 @@ function assertZero(num) {
 
 (async () => {
   try {
+    core.info('Action directory is ' + ACTION_DIR);
     
     const pandocPath = await tc.downloadTool(PANDOC);
     const pandocExtracted = await tc.extractTar(pandocPath);
