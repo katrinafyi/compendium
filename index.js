@@ -92,7 +92,8 @@ function assertZero(num) {
     process.chdir(INPUT_DIR);
     const globber2 = await glob.create(core.getInput('copy-glob'));
     for await (let file of globber2.globGenerator()) {
-      file = path.relative(file, INPUT_DIR);
+      if (!fs.lstatSync(file).isFile()) continue;
+      file = path.relative(INPUT_DIR, file);
 
       core.info('Copying ' + file + ' to ' + sitePath + '/' + file);
       assertZero(await exec.exec('cp', ['-rv', file, sitePath + '/' + file]));
