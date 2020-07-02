@@ -1,0 +1,11 @@
+---
+layout: main
+---
+<h1>{{ title }}</h1>
+
+<article>
+<b>Table of Contents</b>
+{% set tocData = (content | toc('{"tags":["h1","h2"]}')) %}
+{{ tocData | safe }}
+</article>
+{{ content | safe }}

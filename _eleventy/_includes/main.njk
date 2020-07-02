@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+    {% set t = (title | default(page.inputPath.split('/') | last | replace('.html', ''))) %}
+    <title>{{ t }}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.min.css">
+    <!--<link rel="stylesheet" href="https://unpkg.com/mvp.css">-->
+    <!--<link rel="stylesheet" href="https://latex.now.sh/style.css">-->
+    <style>
+        code{white-space: pre-wrap;}
+        span.smallcaps{font-variant: small-caps;}
+        span.underline{text-decoration: underline;}
+        div.column{display: inline-block; vertical-align: top; width: 50%;}
+    </style>
+    <!--<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-AMS_CHTML-full" type="text/javascript"></script>-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.js"></script>
+    <script>document.addEventListener("DOMContentLoaded", function () {
+    var mathElements = document.getElementsByClassName("math");
+    var macros = [];
+    /*
+    const BATCH_SIZE = 100;
+    var i = 0;
+    while (i < mathElements.length) {
+      const start = i;
+      setTimeout(() => {
+        for (var j = 0; j < BATCH_SIZE; j++) {
+          const i = start + j;
+          if (i >= mathElements.length) break;
+
+          var texText = mathElements[i].firstChild;
+          if (mathElements[i].tagName == "SPAN") {
+            katex.render(texText.data, mathElements[i], {
+              displayMode: mathElements[i].classList.contains('display'),
+              throwOnError: false,
+              macros: macros,
+              fleqn: false
+            });
+          }
+        }
+      }, 0);
+      i += BATCH_SIZE;
+    }
+    */
+    
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+      katex.render(texText.data, mathElements[i], {
+        displayMode: mathElements[i].classList.contains('display'),
+        throwOnError: false,
+        macros: macros,
+        fleqn: false
+      });
+    }}
+    
+    });
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" />
+    <!--[if lt IE 9]>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    {{ content | fixImg | safe }}
+  </body>
+</html>

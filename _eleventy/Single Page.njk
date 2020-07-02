@@ -1,0 +1,20 @@
+---
+title: Single Page View
+layout: main
+single_page_exclude: true
+---
+
+<h1>Single Page View</h1>
+<small>This is an automatically generated page containing everything in a single view.</small>
+
+{% set allPages %}
+{%- for post in collections.list -%}
+  {{ post.templateContent | safe }}
+{%- endfor -%}
+{% endset %}
+
+<article>
+{{ allPages | toc | safe }}
+</article>
+
+{{ allPages | safe }}
