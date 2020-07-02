@@ -32,7 +32,7 @@ function assertZero(num) {
     const pandocExtracted = await tc.extractTar(pandocPath);
     core.info('Pandoc downloaded and extracted to ' + pandocExtracted);
 
-    const pandocCache = await tc.cacheDir(pandocExtracted);
+    const pandocCache = await tc.cacheDir(pandocExtracted, 'pandoc', '2.10');
     core.addPath(pandocCache);
     core.info('Pandoc cached at ' + pandocCache);
 
