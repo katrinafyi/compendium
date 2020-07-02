@@ -37,14 +37,14 @@ function assertZero(num) {
 
     assertZero(await exec.exec('pandoc --version'));
     
-    if ((await cache.restoreCache(CACHE_PATHS, CACHE_KEY)) === undefined) {
-      core.info('Creating node_modules cache');
-      assertZero(await exec.exec('node ci'));
-      const cache = await cache.saveCache(CACHE_PATHS, CACHE_KEY);
-      console.info('Cache result ' + cache);
-    } else {
-      core.info('Using existing node_modules cache');
-    }
+    // if ((await cache.restoreCache(CACHE_PATHS, CACHE_KEY)) === undefined) {
+    //   core.info('Creating node_modules cache');
+    //   assertZero(await exec.exec('node ci'));
+    //   const cache = await cache.saveCache(CACHE_PATHS, CACHE_KEY);
+    //   console.info('Cache result ' + cache);
+    // } else {
+    //   core.info('Using existing node_modules cache');
+    // }
 
     // change to input directory
     core.info('Working directory is ' + INPUT_DIR);
