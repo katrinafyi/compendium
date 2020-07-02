@@ -1,5 +1,6 @@
-const process = require('process');
+const fs = require('fs');
 const path = require('path');
+const process = require('process');
 
 const core = require('@actions/core');
 const github = require('@actions/github');
@@ -60,7 +61,9 @@ function assertZero(num) {
 
     const globber = await glob.create(core.getInput('input-glob'));
     for await (let file of globber.globGenerator()) {
-      file = path.relative(file, INPUT_DIR);
+      if (!fs.lstatSync(file).isFile()) continue;
+
+      file = path.relative(INPUT_DIR, file);
 
       const htmlName = file.substr(0, file.lastIndexOf(".")) + ".html";
       const newFile = ELEVENTY_DIR + '/' + htmlName;
