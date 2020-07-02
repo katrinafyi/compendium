@@ -18,5 +18,5 @@ outputs:
     description: 'The time we greeted you'
 runs:
   using: 'node12'
-  pre: 'setup.sh'
+  pre: 'setup.js'
   main: 'index.js'
