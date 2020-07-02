@@ -19,8 +19,9 @@ const INPUT_DIR = WORKSPACE + '/' + core.getInput('input-dir');
 const CACHE_KEY = 'compendium-cache-key';
 const CACHE_PATHS = ['node_modules'];
 
-const PANDOC = 'https://github.com/jgm/pandoc/releases/download/2.10/pandoc-2.10-linux-amd64.tar.gz';
-
+const PANDOC = 'pandoc';
+const PANDOC_VER = '2.10';
+const PANDOC_URL = `https://github.com/jgm/pandoc/releases/download/${PANDOC_VER}/pandoc-${PANDOC_VER}-linux-amd64.tar.gz`;
 
 function assertZero(num) {
   if (num != 0) 
@@ -31,16 +32,21 @@ function assertZero(num) {
   try {
     core.info('Action directory is ' + ACTION_DIR);
     
-    const pandocArchive = await tc.downloadTool(PANDOC);
-    const pandocExtracted = await tc.extractTar(pandocArchive);
-    core.info('Pandoc downloaded and extracted to ' + pandocExtracted);
+    let pandocCache = tc.find(PANDOC, PANDOC_VER);
 
-    const pandocCache = await tc.cacheDir(pandocExtracted, 'pandoc', '2.10');
-    core.addPath(pandocCache);
-    core.info('Pandoc cached at ' + pandocCache);
+    if (pandocCache == '') {
+      const pandocArchive = await tc.downloadTool(PANDOC_URL);
+      const pandocExtracted = await tc.extractTar(pandocArchive);
+      core.info('Pandoc downloaded and extracted to ' + pandocExtracted);
 
+      pandocCache = await tc.cacheDir(pandocExtracted, PANDOC, PANDOC_VER);
+      core.addPath(pandocCache);
+      core.info('Pandoc cached at ' + pandocCache);
+    } else {
+      core.info('Using existing pandoc cache at ' + pandocCache);
+    }
     
-    const pandocPaths = await (await glob.create(pandocCache + '/**/pandoc')).glob();
+    const pandocPaths = await (await glob.create(pandocCache + '/**/' + PANDOC)).glob();
     if (pandocPaths.length == 0)
       throw new Error('Could not find location of pandoc binary');
     const pandoc = pandocPaths[0];
@@ -79,7 +85,7 @@ function assertZero(num) {
 
     process.chdir(ELEVENTY_DIR);
     core.info('Executing eleventy');
-    assertZero(await exec.exec('eleventy'));
+    assertZero(await exec.exec('../node_modules/.bin/eleventy')); // hack
 
     process.chdir(INPUT_DIR);
     const globber2 = await glob.create(core.getInput('copy-glob'));
