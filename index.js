@@ -88,7 +88,7 @@ async function* globRelativeFiles(pattern, base=undefined) {
 
       const ret = await exec.exec(pandoc, [
         '-s', '-f', 'markdown', '-t', 'html5', 
-        '--katex', '--toc', '--template=' + TOC_HTML,
+        '--katex', //'--toc', '--template=' + TOC_HTML,
         file, '-o', newFile,
       ]);
       assertZero(ret);
