@@ -96,11 +96,11 @@ async function* globRelativeFiles(pattern, base=undefined) {
     core.endGroup();
 
     const eleventyInput = core.getInput('eleventy-input');
-    
+
     core.startGroup('Copying files from eleventy-input to eleventy directory');
     if (fs.existsSync(eleventyInput) && fs.lstatSync(eleventyInput).isDirectory()) {
       assertZero(
-        await exec.exec('cp', ['-rv', eleventyInput + '/*', ELEVENTY_DIR]));
+        await exec.exec('cp', ['-rv', eleventyInput + '/.', ELEVENTY_DIR]));
     } else {
       core.info('Invalid eleventy-input directory, ignoring');
     }
