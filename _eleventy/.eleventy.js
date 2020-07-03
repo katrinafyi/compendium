@@ -30,4 +30,8 @@ module.exports = function(eleventyConfig) {
         .filter(item => !item.data.single_page_exclude)
         .sort(compare);
     });
+
+    eleventyConfig.addShortcode("date", function() {
+        return (new Date()).toLocaleDateString();
+    })
 };

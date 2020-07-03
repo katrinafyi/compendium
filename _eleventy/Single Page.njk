@@ -4,11 +4,12 @@ layout: main
 single_page_exclude: true
 ---
 
-<h1>Single Page View</h1>
 <small>This is an automatically generated page containing everything in a single view.</small>
 
 {% set allPages %}
 {%- for post in collections.list -%}
+  <h1>{{ post.data.title }}</h1>
+
   {{ post.templateContent | safe }}
 {%- endfor -%}
 {% endset %}

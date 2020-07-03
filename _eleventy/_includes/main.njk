@@ -63,6 +63,9 @@
     <![endif]-->
   </head>
   <body>
+    <h1>{{ t }}</h1>
+
     {{ content | fixImg | safe }}
+    <p><small>Last updated {{ date }}.</small></p>
   </body>
 </html>
