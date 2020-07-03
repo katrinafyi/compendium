@@ -1,21 +1,26 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
+name: 'Compendium'
+description: 'Generate a static website from Markdown files using Pandoc and Eleventy'
 inputs:
   input-dir:
-    description: 'Input directory for page files (relative to repository root)'
+    description: 'Input directory for page files (relative to workspace)'
     required: false
     default: '.'
-  input-glob:
-    description: 'Glob to match input files (relative to input-dir)'
+  pandoc-glob:
+    description: 'Glob to match input files to run through pandoc (relative to input-dir)'
     required: false
-    default: '**/*.md'
+    default: |
+      **/*.md
+  eleventy-input:
+    description: 'Directory to copy to eleventy input (relative to input-dir)'
+    required: false
+    default: '_input'
   copy-glob:
     description: 'Glob to copy to output site folder (relative to input-dir)'
     required: false
     default: 'assets'
 outputs:
   site:
-    description: 'Directory of rendered site files'
+    description: 'Directory of rendered site files (relative to workspace)'
 runs:
   using: 'node12'
   pre: 'setup.js'

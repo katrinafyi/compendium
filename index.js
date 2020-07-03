@@ -30,10 +30,23 @@ function assertZero(num) {
     throw new Error('Subprocess exited with non-zero return code!');
 }
 
+async function* globRelativeFiles(pattern, base=undefined) {
+  if (base === undefined)
+    base = process.cwd();
+  
+  const globber = await glob.create(pattern);
+  for await (const file of globber.globGenerator()) {
+    if (!fs.lstatSync(file).isFile())
+      continue;
+    yield path.relative(base, file);
+  }
+}
+
 (async () => {
   try {
     core.info('Action directory is ' + ACTION_DIR);
-    
+
+    core.startGroup('Initialising pandoc');
     let pandocCache = tc.find(PANDOC, PANDOC_VER);
 
     if (pandocCache == '') {
@@ -53,6 +66,7 @@ function assertZero(num) {
       throw new Error('Could not find location of pandoc binary');
     const pandoc = pandocPaths[0];
     assertZero(await exec.exec(pandoc + ' --version'));
+    core.endGroup();
     
     // if ((await cache.restoreCache(CACHE_PATHS, CACHE_KEY)) === undefined) {
     //   core.info('Creating node_modules cache');
@@ -64,15 +78,11 @@ function assertZero(num) {
     // }
 
     // change to input directory
+    core.startGroup('Executing pandoc on pandoc-glob files');
     core.info('Working directory is ' + INPUT_DIR);
     process.chdir(INPUT_DIR);
-
-    const globber = await glob.create(core.getInput('input-glob'));
-    for await (let file of globber.globGenerator()) {
-      if (!fs.lstatSync(file).isFile()) continue;
-
-      file = path.relative(INPUT_DIR, file);
-
+    
+    for await (const file of globRelativeFiles(core.getInput('pandoc-glob'))) {
       const htmlName = file.substr(0, file.lastIndexOf(".")) + ".html";
       const newFile = ELEVENTY_DIR + '/' + htmlName;
 
@@ -83,27 +93,37 @@ function assertZero(num) {
       ]);
       assertZero(ret);
     }
+    core.endGroup();
 
-    // assertZero(await exec.exec('cp', ['-rvn', DEFAULT_DIR + '/*', ELEVENTY_DIR]));
+    const eleventyInput = core.getInput('eleventy-input');
+    
+    core.startGroup('Copying files from eleventy-input to eleventy directory');
+    if (fs.existsSync(eleventyInput) && fs.lstatSync(eleventyInput).isDirectory()) {
+      assertZero(
+        await exec.exec('cp', ['-rv', eleventyInput + '/*', ELEVENTY_DIR]));
+    } else {
+      core.info('Invalid eleventy-input directory, ignoring');
+    }
+    core.endGroup();
 
+    core.startGroup('Generating site with eleventy');
     process.chdir(ELEVENTY_DIR);
     core.info('Executing eleventy');
-    assertZero(await exec.exec(ACTION_DIR+ '/node_modules/.bin/eleventy')); // hack
+    assertZero(await exec.exec(ACTION_DIR + '/node_modules/.bin/eleventy')); // hack
+    core.endGroup();
 
     const sitePath = ELEVENTY_DIR + '/_site';
 
+    core.startGroup('Copying files from copy-glob to generated site folder');
     process.chdir(INPUT_DIR);
-    const globber2 = await glob.create(core.getInput('copy-glob'));
-    for await (let file of globber2.globGenerator()) {
-      if (!fs.lstatSync(file).isFile()) continue;
-      file = path.relative(INPUT_DIR, file);
-
+    for await (const file of globRelativeFiles(core.getInput('copy-glob'))) {
       const newFile = sitePath + '/' + file;
       const newDir = path.dirname(newFile);
+      
       await io.mkdirP(newDir);
-
       await io.cp(file, newFile, {force: true, recursive: true});
     }
+    core.endGroup();
 
     core.setOutput('site', path.relative(WORKSPACE, sitePath));
 
