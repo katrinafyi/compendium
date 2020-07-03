@@ -3,6 +3,7 @@ const path = require('path');
 const process = require('process');
 
 const core = require('@actions/core');
+const io = require('@actions/io');
 const github = require('@actions/github');
 const exec = require('@actions/exec');
 const glob = require('@actions/glob');
@@ -11,6 +12,7 @@ const cache = require('@actions/cache');
 
 const ACTION_DIR = __dirname;
 const ELEVENTY_DIR = ACTION_DIR + '/_eleventy';
+const DEFAULT_DIR = ACTION_DIR + '/_default';
 const TOC_HTML = ACTION_DIR + '/_toc.html';
 
 const WORKSPACE = process.env['GITHUB_WORKSPACE'];
@@ -25,7 +27,7 @@ const PANDOC_URL = `https://github.com/jgm/pandoc/releases/download/${PANDOC_VER
 
 function assertZero(num) {
   if (num != 0) 
-    throw new Error('Pandoc installed improperly!');
+    throw new Error('Subprocess exited with non-zero return code!');
 }
 
 (async () => {
@@ -73,7 +75,6 @@ function assertZero(num) {
 
       const htmlName = file.substr(0, file.lastIndexOf(".")) + ".html";
       const newFile = ELEVENTY_DIR + '/' + htmlName;
-      core.info('Converting input file ' + file + ' to ' + newFile);
 
       const ret = await exec.exec(pandoc, [
         '-s', '-f', 'markdown', '-t', 'html5', 
@@ -83,9 +84,11 @@ function assertZero(num) {
       assertZero(ret);
     }
 
+    // assertZero(await exec.exec('cp', ['-rvn', DEFAULT_DIR + '/*', ELEVENTY_DIR]));
+
     process.chdir(ELEVENTY_DIR);
     core.info('Executing eleventy');
-    assertZero(await exec.exec('../node_modules/.bin/eleventy')); // hack
+    assertZero(await exec.exec(ACTION_DIR+ '/node_modules/.bin/eleventy')); // hack
 
     const sitePath = ELEVENTY_DIR + '/_site';
 
@@ -97,14 +100,12 @@ function assertZero(num) {
 
       const newFile = sitePath + '/' + file;
       const newDir = path.dirname(newFile);
-      if (!fs.existsSync(newDir))
-        assertZero(await exec.exec('mkdir', ['-p', newDir]));
+      await io.mkdirP(newDir);
 
-      core.info('Copying ' + file + ' to ' + newFile);
-      assertZero(await exec.exec('cp', ['-rv', file, newFile]));
+      await io.cp(file, newFile, {force: true, recursive: true});
     }
 
-    core.setOutput('site', path.resolve(sitePath));
+    core.setOutput('site', path.relative(WORKSPACE, sitePath));
 
   } catch (error) {
     core.setFailed(error.message);
