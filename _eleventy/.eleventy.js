@@ -35,7 +35,7 @@ module.exports = function(eleventyConfig) {
         .sort(compare);
     });
 
-    eleventyConfig.addShortcode("date", function() {
+    eleventyConfig.addShortcode("date", function(x) {
         return (new Date()).toLocaleDateString();
     })
 };
