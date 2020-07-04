@@ -66,6 +66,6 @@
     <h1>{{ t }}</h1>
 
     {{ content | fixImg | safe }}
-    <p><small>Last updated {{ date "0" }}.</small></p>
+    <p><small>Last updated {% date %}.</small></p>
   </body>
 </html>
