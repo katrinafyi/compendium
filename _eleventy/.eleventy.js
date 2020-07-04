@@ -1,9 +1,13 @@
 const toc = require('eleventy-plugin-nesting-toc');
 
+function normName(name) {
+    // replace . with space, merge consecutive space
+    // then replace single digits with zero-padded digit.
+    return name.replace(/\./g, ' ').replace(/\s{2,}/g, ' ').replace(/ (\d) /g, ' 0$1 ').toLowerCase();
+}
+
 function compare(a, b) {
-    const left = a.url.replace(/ (\d) /g, ' 0$1 ');
-    const right = b.url.replace(/ (\d) /g, ' 0$1 ');
-    return left.localeCompare(right);
+    return normName(a.url).localeCompare(normName(b.url));
 }
 
 module.exports = function(eleventyConfig) {
