@@ -12,7 +12,7 @@ function compare(a, b) {
 
 module.exports = function(eleventyConfig) {
     eleventyConfig.addPlugin(toc, 
-        { headingText: 'Table of Contents', tags: ['h1', 'h2', 'h3', 'h4'] });
+        { headingText: 'Table of Contents', tags: ['h1', 'h2'] });
 
     // Output directory: _site
     eleventyConfig.addPassthroughCopy("assets");

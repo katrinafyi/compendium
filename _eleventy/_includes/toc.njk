@@ -5,7 +5,7 @@ layout: main
 
 <article>
 <b>Table of Contents</b>
-{% set tocData = (content | toc('{"tags":["h1","h2"]}')) %}
+{% set tocData = (content | toc) %}
 {{ tocData | safe }}
 </article>
 {{ content | safe }}
