@@ -36,6 +36,6 @@ module.exports = function(eleventyConfig) {
     });
 
     eleventyConfig.addShortcode("date", function() {
-        return (new Date()).toLocaleDateString();
+        return (new Date()).toLocaleString();
     })
 };
