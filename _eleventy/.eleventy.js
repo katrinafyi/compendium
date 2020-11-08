@@ -3,7 +3,11 @@ const toc = require('eleventy-plugin-nesting-toc');
 function normName(name) {
     // replace . with space, merge consecutive space
     // then replace single digits with zero-padded digit.
-    return name.replace(/\./g, ' ').replace(/\s{2,}/g, ' ').replace(/ (\d) /g, ' 0$1 ').toLowerCase();
+    return name
+        .replace(/\./g, ' ')
+        .replace(/\s{2,}/g, ' ')
+        .replace(/\d+/g, x => x.padStart(5, '0'))
+        .toLowerCase();
 }
 
 function compare(a, b) {
